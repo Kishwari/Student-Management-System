@@ -1,0 +1,383 @@
+#include<stdio.h>
+
+#include<stdlib.h>
+#include<string.h>
+
+void menu();                //menu function
+void add();                    //function to add new student information
+void view();                //function to view record stored
+void search();                //function to search a record
+void modify();                //function to modify record
+void deleterec();            //function to delete a record
+void  log_in();                //function to login into student management system
+
+struct student
+{
+    char name[20];
+    char mobile[10];
+    char email[40];
+    char due_fees[5];
+    char paid_fees[5];
+    int rollno;
+    char branch[20];
+    short int semester;
+    char result[8];
+    int attendence[8];
+};
+
+int main()                    //main function starts here
+{
+    printf("\n\n\n\n\n\n\n\t\t\t----------->Student Record Management System<-------------\n");
+    printf("\n\n\n\n\t\t\t\t\t Press any key to continue.");
+    getch();
+    log_in();
+    return 0;
+}                            //main function ends
+
+void login()                //login function starts
+{
+    static int a=0;            //this will count the number of time wrong pswd has been entered
+    system("cls");            //clear screen
+    char user_name[20],pass[20];
+    printf("\n\n\n\n\n\n\n\t\t\t\t------>:Student Record Management System<---------\n");
+    printf("\n\n\n\n\t\t\t\tENTER USER-NAME:-");
+    scanf("%s",user_name);
+    fflush(stdin);
+    printf("\n\n\t\t\t\tENTER PASSWARD:-");
+    scanf("%s",pass);
+    if(strcmp(user_name,"@Admin")==0 && strcmp(pass,"@SE")==0)        //if uusername and pswd is correrct only then u can proceed
+    {
+        menu();
+    }
+    else                                                            //otherwise enter username and pswd again
+    {
+        if(a!=4)
+            printf("\n\n\n\t\t\t\tYou have %d more attempts....",(4-a));
+        getch();
+        a++;
+        if(a<5)
+        {
+            log_in();
+        }
+        else
+        {
+            system("cls");
+            printf("\n\n\n\t\t\t\t\t\tSORRY.......\n\n\t\t\t\tYOU HAVE ENTERED WRONG PASSWARD 5 TIMES.......\n\n\n\n\t\t\t\tPLEASE ENTER ANY KEY TO CONTINUE.......");
+            getch();
+            exit(1);
+        }
+    }
+}
+
+void menu()
+{
+    int choice;
+    system("cls");                            //clearing screen
+    printf("\n\n\t\t\t\t------------------------->MENU<-----------------------\n");
+    printf("\n\n\t\t\t\tEnter appropriate number to perform following task.\n");
+    printf("\t\t\t\t1 : Add Record.\n");
+    printf("\t\t\t\t2 : View Record.\n");
+    printf("\t\t\t\t3 : Search Record.\n");
+    printf("\t\t\t\t4 : Modify Record.\n");
+    printf("\t\t\t\t5 : Delete.\n");
+    printf("\t\t\t\t6 : Exit.\n");
+    printf("\t\t\t\tEnter your choice:-");
+    scanf("%d",&choice);
+    switch(choice)
+    {
+    case 1:
+        add();
+        break;
+
+    case 2:
+        view();
+        break;
+
+    case 3:
+        search();
+        break;
+
+    case 4:
+        modify();
+        break;
+
+    case 5:
+        deleterec();
+        break;
+
+    case 6:
+        exit(1);
+        break;
+
+    default:
+
+        printf("Invalid Choice.");
+    }
+}
+
+void add()
+{
+    FILE *fp;                                //creating file pointer
+    struct student std;
+    char another ='y';
+    system("cls");
+
+    fp = fopen("record.txt","ab+");            //opening file in append mode (binary file)
+    if(fp == NULL)                            //checking wheteher file is opened or not
+    {
+        printf("\n\n\n\n\t\t\t\t\Error opening file\n");
+        exit(1);
+    }
+    fflush(stdin);
+    while(another == 'y')
+    {
+        printf("\n\n\t\t\t\t----------------->ADD RECORD<-----------------------\n");
+        printf("\n\t\t\t\tEnter details of student.\n\n");
+        printf("\t\t\t\tEnter Name:");
+        gets(std.name);
+        printf("\n\t\t\t\tEnter Roll No:");
+        scanf("%d",&std.rollno);
+        fflush(stdin);
+        printf("\n\t\t\t\tEnter Mobile Number:");
+        gets(std.mobile);
+        printf("\n\t\t\t\tEnter Email ID:");
+        gets(std.email);
+        printf("\n\t\t\t\tEnter Branch:");
+        gets(std.branch);
+        printf("\n\t\t\t\tEnter Due fess:");
+        scanf("%s",&std.due_fees);
+        printf("\n\t\t\t\tEnter paid fess:");
+        scanf("%s",&std.paid_fees);
+        printf("\n\t\t\t\tEnter current semester:");
+        scanf("%u",&std.semester);
+        if(std.semester!=1)
+        {
+            printf("\n\t\t\t\tEnter result (P=PASS and F=FAIL)");
+            for(int i=1;i<std.semester;i++)
+            {
+                fflush(stdin);
+                printf("\n\n\t\t\t\tEnter result of %d-th semester:",i);
+                scanf("%c",&std.result[i]);
+            }
+            for(int i=1;i<std.semester;i++)
+            {
+                fflush(stdin);
+                printf("\n\t\t\t\tEnter attendence of %d-th semester (in %%):",i);
+                scanf("%d",&std.attendence[i]);
+            }
+        }
+        fwrite(&std,sizeof(std),1,fp);
+        printf("\n\n\t\t\tWant to add of another record? Then press 'y' else 'n'.");
+        fflush(stdin);
+        another = getch();            //y=yes we want to add more record .....n=no we don't want to add more record
+        system("cls");
+        fflush(stdin);
+    }
+    fclose(fp);                        //closing file
+    printf("\n\n\n\n\t\t\t\t\t\tPress any key to continue.......");
+    getch();                        //for holding screen
+    menu();                            //back to menu function
+}
+
+void view()
+{
+    FILE *fp;
+    struct student std;
+    system("cls");
+
+    printf("\n\n\t\t---------------->VIEW RECORD<----------------------");
+    fp = fopen("record.txt","rb+");
+    if(fp == NULL)
+    {
+        printf("\nError opening file.");
+        exit(1);
+    }
+    while(fread(&std,sizeof(std),1,fp) == 1)
+    {
+        printf("\n-----------------------------------------------------------------------------------\n");
+        printf("ROLL NUMBER:-%d\n\n",std.rollno);
+        printf("NAME:-%s\n\n",std.name);
+      printf("Email ID:-%s\n\n",std.email);
+        printf("MOBILE NUMBER:-%s\n\n",std.mobile);
+       printf("BRANCH:-%s\n\n",std.branch);
+        printf("Due fees:-%s\n\n",std.due_fees);
+        printf("Paid fees:-%s\n\n",std.paid_fees);
+        printf("CURRENT SEMESTER:-%d",std.semester);
+        for(int j=1;j<std.semester;j++)
+        {
+            printf("\n\nResult of %d-th semester:",j);
+            printf("%c  ",std.result[j]);
+        }
+        for(int j=1;j<std.semester;j++)
+        {
+            printf("\n\nAttendence of %d-th semester : %d",j,std.attendence[j]);
+        }
+    }
+    fclose(fp);
+
+    printf("\n\nPress any key to continue.");
+    getch();
+    menu();
+}
+
+void search()
+{
+    FILE *fp;
+    struct student std;
+    int rmatch,c=0;
+    system("cls");
+
+    printf("\n\n\t\t\t--------------->SEARCH RECORD<-----------------\n");
+    printf("\n------------------------------------------------------------------------------\n");
+    printf("\nEnter student's roll number:-");
+    fflush(stdin);
+    scanf("%d",&rmatch);
+    printf("\n------------------------------------------------------------------------------\n");
+    fp = fopen("record.txt","rb+");
+    if(fp == NULL)
+    {
+        printf("Error opening file");
+        exit(1);
+    }
+    while(fread(&std,sizeof(std),1,fp ) == 1)
+    {
+        if(std.rollno == rmatch)
+        {
+            c=1;
+            printf("ROLL NUMBER:-%d\n\n",std.rollno);
+            printf("NAME:-%s\n\n",std.name);
+            printf("Email ID:-%s\n\n",std.email);
+            printf("MOBILE NUMBER:-%s\n\n",std.mobile);
+            printf("BRANCH:-%s\n\n",std.branch);
+            printf("Due fees:-%s\n\n",std.due_fees);
+            printf("Paid fees:-%s\n\n",std.paid_fees);
+            printf("CURRENT SEMESTER:-%d",std.semester);
+            for(int j=1;j<std.semester;j++)
+            {
+                printf("\n\nResult of %d-th semester:",j);
+                printf("%c ",std.result[j]);
+            }
+            for(int j=1;j<std.semester;j++)
+            {
+                printf("\n\nAttendence of %d-th semester:",j);
+                printf("%d ",std.attendence[j]);
+            }
+        }
+    }
+    if(c==0)
+        printf("\n\n\t\t\tSORRY.....NO RECORD FOUND!!!!!");
+    fclose(fp);
+    printf("\n\n\n\n\t\t\t\tPress any key to continue.......\n");
+    getch();
+    menu();
+}
+
+void modify()
+{
+    int rmatch,c=0;
+    FILE *fp;
+    struct student std;
+    system("cls");
+    printf("\n\n\n\t\t\t------------------> MODIFY RECORD <------------------\n");
+    printf("\n\tEnter student\'s roll number to modify : ");
+    fflush(stdin);
+    scanf("%d",&rmatch);
+    fp = fopen("record.txt","rb+");
+    if(fp == NULL)
+    {
+        printf("\n\n\n\t\t\tError opening file");
+        exit(1);
+    }
+    rewind(fp);                //moves the cursor at beginning of the file
+    fflush(stdin);
+    printf("-------------------------------------------------------------------------------------------\n");
+    while(fread(&std,sizeof(std),1,fp) == 1)
+    {
+        if(std.rollno == rmatch)
+        {
+            c=1;
+            printf("\n\t\t\t\tEnter details of student.\n\n");
+            printf("\t\t\t\tEnter Name:");
+            gets(std.name);
+            printf("\n\t\t\t\tEnter Roll No:");
+            scanf("%d",&std.rollno);
+            fflush(stdin);
+            printf("\n\t\t\t\tEnter Mobile Number:");
+            gets(std.mobile);
+            fflush(stdin);
+            fflush(stdin);
+            printf("\n\t\t\t\tEnter Email ID:");
+            gets(std.email);
+            printf("\n\t\t\t\tEnter Branch:");
+            gets(std.branch);
+            printf("\n\t\t\t\tEnter Due fess:");
+            scanf("%s",&std.due_fees);
+            printf("\n\t\t\t\tEnter paid fess:");
+            scanf("%s",&std.paid_fees);
+            printf("\n\t\t\t\tEnter current semester:");
+            scanf("%u",&std.semester);
+            if(std.semester!=1)
+            {
+                printf("\n\t\t\tEnter result (P=PASS and F=FAIL)");
+                for(int i=1;i<std.semester;i++)
+                {
+                    fflush(stdin);
+                    printf("\n\t\t\tEnter result of %d-th semester:",i);
+                    scanf("%c",&std.result[i]);
+                }
+                for(int i=1;i<std.semester;i++)
+                {
+                    fflush(stdin);
+                    printf("\n\t\t\tEnter attendence of %d-th semester (in %%):",i);
+                    scanf("%d",&std.attendence[i]);
+                }
+            }
+            fseek(fp,sizeof(std),SEEK_CUR);
+            fwrite(&std,sizeof(std),1,fp);
+            break;
+        }
+    }
+    if(c==0)
+        printf("\n\n\t\t\tSORRY.....NO RECORD FOUND!!!!!");
+    fclose(fp);
+    printf("\nPress any key to continue.");
+    getch();
+    fflush(stdin);
+    menu();
+}
+
+void deleterec()
+{
+    int mroll;
+    FILE *fp,*ft;                            //creating two file pointer one for temp file and another for record file
+    struct student std;
+    system("cls");
+    printf("\n\n\t\t\t------------------> DELETE RECORD <----------------------\n");
+    printf("\n\n\t\tEnter student\'s roll number to delete record : ");
+    fflush(stdin);
+    scanf("%d",&mroll);
+    fp = fopen("record.txt","rb+");
+    if(fp == NULL)
+    {
+        printf("\n\n\t\t\t\tError opening file");
+        exit(1);
+    }
+    ft = fopen("temp.txt","wb+");
+    if(ft == NULL)
+    {
+        printf("\n\n\n\t\t\tError opening file");
+        exit(1);
+    }
+    while(fread(&std,sizeof(std),1,fp) == 1)
+    {
+        if(std.rollno != mroll)            //writting all records in temp.txt which we don't want to delete
+            fwrite(&std,sizeof(std),1,ft);
+    }
+    fclose(fp);
+    fclose(ft);
+    remove("record.txt");                        //removing record.txt file
+    rename("temp.txt","record.txt");            //renaming temp.txt as record.txt
+    printf("\n\n\n\t\t\t\tPress any key to continue.");
+    getch();
+    menu();
+}
